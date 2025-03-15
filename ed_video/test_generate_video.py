@@ -121,9 +121,9 @@ if __name__ == "__main__":
     if video_path:
 
         try:
-            if os.name == 'nt':  # Windows
+            if os.name == 'nt':  
                 os.startfile(video_path)
-            elif os.name == 'posix':  # macOS, Linux
+            elif os.name == 'posix':  
                 import subprocess
                 subprocess.call(('open' if os.uname().sysname == 'Darwin' else 'xdg-open', video_path))
         except Exception as e:

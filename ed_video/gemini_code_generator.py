@@ -3,10 +3,8 @@ import re
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Configure the Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in environment variables")
@@ -15,7 +13,6 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
 def generate_code(prompt):
-    """Generate code using Gemini API based on the provided prompt."""
     generation_config = {
         "temperature": 0.7,
         "top_p": 0.95,
@@ -84,11 +81,11 @@ def generate_code(prompt):
     3. Strictly Structure content hierarchically: 
         At most top of video : title
         if the title is generated at centre..then move it to top
-        next to title: explanations ( generated below the title line by line with proper spacing from top to bottom.)
+        next to title: explanations ( generated below the title line by line with proper spacing from up to down without overlap with title nor overlap between them)
         clear the title if needed (recommended to prevent overlapping)
         clear the title if you feel like screen gonna get filled 
         elements should not go out of video frame and 1 unit margin from all sides
-        explation should be genrated below title with proper spacing between them and dont go out of frame
+        explanation should be generated below title with proper spacing between them and don't go out of frame
     Clear the screen when you gonna use graphs and make sure entire graph is inside the frame and the graph animations dont overlap with existing elements
     4. Create a scene class named RequestGeneration that inherits from Scene
     5. Use MathTex/Tex for all text to ensure proper chemical and mathematical notation
@@ -105,7 +102,6 @@ def generate_code(prompt):
     return clean_code_response(response.text)
 
 def validate_code(code, language):
-    """Validate the generated code using Gemini API."""
     validation_prompt = f"""
     Review the following Manim Python code for errors and optimization opportunities:
 
@@ -146,7 +142,7 @@ def validate_code(code, language):
 
     7.Look out for Value Errors
 
-    8. If you feel like there overlapping add clear screens and also make sure title and explanation dont overlap nor explation is too bottom
+    8. If you feel like there overlapping add clear screens and also make sure title and explanation dont overlap nor explanation is too bottom
 
     - IMPORTANT: Never use font_size parameter with the next_to() method - it's not a valid parameter. Instead, set font_size when creating Text or MathTex objects.
 
@@ -165,30 +161,23 @@ def validate_code(code, language):
     return clean_code_response(response.text)
 
 def clean_code_response(text):
-    """Clean the code response by removing markdown code blocks and other formatting."""
-    # Remove code block markers
     text = re.sub(r'^```\w*\s*', '', text)
     text = re.sub(r'\s*```$', '', text)
     
-    # If the entire response is wrapped in code blocks, remove them
     text = re.sub(r'^```[\w]*\n(.*?)\n```$', r'\1', text, flags=re.DOTALL)
     
     return text
 
 def generate_and_validate(prompt, language="python"):
-    """Generate code and validate it in one function."""
     print(f"Generating {language} code for: {prompt}")
     
-    # Generate the code
     generated_code = generate_code(prompt)
     print("\n--- Generated Code ---")
     print(generated_code)
     
-    # Validate the code
     print("\nValidating code...")
     validation_result = validate_code(generated_code, language)
     
-    # Clean the validation result to ensure it doesn't have markdown formatting
     validation_result = clean_code_response(validation_result)
     
     if "No errors found" in validation_result:
