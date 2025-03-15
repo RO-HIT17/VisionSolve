@@ -50,13 +50,13 @@ interface Conversation {
       {
         sender: 'user',
         type: 'text',
-        content: '',
+        content: 'Explain any physics topic',
       },
       {
         sender: 'bot',
         type: 'video',
         content: null,
-        videoUrl: '/static/.mp4'
+        videoUrl: '/static/physics.mp4'
       }
     ],
     calculus: [

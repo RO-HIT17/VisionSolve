@@ -23,7 +23,6 @@ def handle_question():
     data = request.json
     user_input = data.get('message', '')
     
-    # Process the question (mock implementation)
     response = {
         'videoUrl': f'/static/video.mp4',
         'message': f'Processed your question: {user_input}'
@@ -39,7 +38,6 @@ def handle_upload():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    # Save uploaded file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
