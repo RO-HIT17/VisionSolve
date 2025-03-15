@@ -14,7 +14,8 @@ import {
   FaSignOutAlt,
   FaSearch,
   FaBell,
-  FaChevronLeft
+  FaChevronLeft,
+  FaPencilAlt 
 } from 'react-icons/fa';
 import '../globals.css'
 
@@ -27,10 +28,74 @@ interface Message {
 }
 
 interface Conversation {
-  id: string;
-  title: string;
-  date: string;
-}
+    id: string;
+    title: string;
+    date: string;
+    topic: 'photosynthesis' | 'calculus' | 'central';
+  }
+  const topicMessages = {
+    photosynthesis: [
+      {
+        sender: 'user',
+        type: 'text',
+        content: 'What do you mean by Photosynthesis',
+      },
+      {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: '/static/photosynthesis.mp4'
+      },
+      {
+        sender: 'user',
+        type: 'text',
+        content: '',
+      },
+      {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: '/static/.mp4'
+      }
+    ],
+    calculus: [
+      {
+        sender: 'user',
+        type: 'text',
+        content: 'How to find the derivative of x²?',
+      },
+      {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: '/static/derivative-solution.mp4'
+      },
+      {
+        sender: 'user',
+        type: 'text',
+        content: 'Explain gaussian integral',
+      },
+      {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: '/static/gaussian-integral.mp4'
+      }
+    ],
+    central: [
+      {
+        sender: 'user',
+        type: 'text',
+        content: 'Explain central limit theorem',
+      },
+      {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: '/static/central-limit.mp4'
+      }
+    ]
+  };
 
 const ChatbotUI: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -41,11 +106,64 @@ const ChatbotUI: React.FC = () => {
   const [botResponseVideoUrl, setBotResponseVideoUrl] = useState<string | null>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedHandwritten, setSelectedHandwritten] = useState<File | null>(null);
   const [pastConversations, setPastConversations] = useState<Conversation[]>([
-    { id: '1', title: 'Linear Equations', date: '2025-03-14' },
-    { id: '2', title: 'Calculus Problem', date: '2025-03-13' },
-    { id: '3', title: 'Geometry Question', date: '2025-03-10' },
+    { 
+      id: '1', 
+      title: 'Photosynthesis', 
+      date: '2025-03-14',
+      topic: 'photosynthesis'
+    },
+    { 
+      id: '2', 
+      title: 'Calculus Problems', 
+      date: '2025-03-13',
+      topic: 'calculus'
+    },
+    { 
+      id: '3', 
+      title: 'Central Limit Theorem', 
+      date: '2025-03-10',
+      topic: 'central'
+    },
   ]);
+  const loadConversation = (conversation: Conversation) => {
+    setSelectedConversationId(conversation.id);
+    setMessages([]); 
+    setTimeout(() => {
+      const messages = topicMessages[conversation.topic].map(msg => ({
+        ...msg,
+        content: msg.content || null,
+        videoUrl: msg.videoUrl ? `${msg.videoUrl}` : undefined
+      }));
+      setMessages(messages as Message[]);
+    }, 50);
+  };
+
+  const ConversationItem = ({ convo }: { convo: Conversation }) => (
+    <div
+      key={convo.id}
+      onClick={() => loadConversation(convo)}
+      className={`py-2 px-3 rounded-md hover:bg-indigo-50 cursor-pointer mb-1 group transition-colors ${
+        selectedConversationId === convo.id ? 'bg-indigo-100 border border-indigo-200' : ''
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
+          {convo.title}
+        </span>
+        <span className="text-xs text-gray-400">
+          {new Date(convo.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+        </span>
+      </div>
+      <div className="mt-1 text-xs text-gray-500">
+        {convo.topic === 'photosynthesis' && 'Photosynthesis'}
+        {convo.topic === 'calculus' && 'Calculus Problems'}
+        {convo.topic === 'central' && 'Central Limit Questions'}
+      </div>
+    </div>
+  );
 
   
   const handleSendMessage = async () => {
@@ -139,6 +257,48 @@ const ChatbotUI: React.FC = () => {
     }
     setIsBotTyping(false);
   };
+  const handleHandwrittenChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+  
+    const newMessage: Message = {
+      sender: 'user',
+      type: 'file',
+      content: file,
+      imageUrl: URL.createObjectURL(file)
+    };
+    setMessages(prev => [...prev, newMessage]);
+  
+    setIsBotTyping(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      const response = await fetch('http://localhost:5000/api/upload/handwritten', {
+        method: 'POST',
+        body: formData
+      });
+  
+      const data = await response.json();
+      
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: data.videoUrl
+      };
+      setMessages(prev => [...prev, botReply]);
+    } catch (error) {
+      console.error('Error:', error);
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'text',
+        content: 'Sorry, there was an error processing your handwritten question.'
+      };
+      setMessages(prev => [...prev, botReply]);
+    }
+    setIsBotTyping(false);
+  };
 
   const handleFileUpload = async () => {
     if (selectedFile) {
@@ -225,20 +385,8 @@ const ChatbotUI: React.FC = () => {
         <div className="p-4">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Recent conversations</h3>
           {pastConversations.map((convo) => (
-            <div
-              key={convo.id}
-              className="py-2 px-3 rounded-md hover:bg-indigo-50 cursor-pointer mb-1 group transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-700">
-                  {convo.title}
-                </span>
-                <span className="text-xs text-gray-400">
-                  {new Date(convo.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                </span>
-              </div>
-            </div>
-          ))}
+        <ConversationItem key={convo.id} convo={convo} />
+        ))}
         </div>
       </div>
     </aside>
@@ -319,6 +467,18 @@ const ChatbotUI: React.FC = () => {
             </label>
             <input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} />
           </div>
+          <div>
+            <label htmlFor="handwritten-upload" className="cursor-pointer text-gray-600 hover:text-indigo-500">
+            <FaPencilAlt className="text-xl" />
+            </label>
+            <input 
+            id="handwritten-upload" 
+            type="file" 
+            className="sr-only" 
+            onChange={handleHandwrittenChange}
+            accept="image/*"
+            />
+        </div>
         </div>
       </div>
 
