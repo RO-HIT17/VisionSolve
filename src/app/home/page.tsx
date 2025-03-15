@@ -22,6 +22,7 @@ import '../globals.css'
 interface Message {
   sender: 'user' | 'bot';
   type: 'text' | 'file' | 'video';
+  message?: string;
   content: string | File | null;
   videoUrl?: string;
   imageUrl?: string;
@@ -223,6 +224,7 @@ const ChatbotUI: React.FC = () => {
       sender: 'user',
       type: 'file',
       content: file,
+      message: null,
       imageUrl
     };
     setMessages(prev => [...prev, newMessage]);
@@ -241,8 +243,8 @@ const ChatbotUI: React.FC = () => {
       
       const botReply: Message = {
         sender: 'bot',
-        type: 'video',
-        content: null,
+        type: data.videoUrl ? 'video' : 'text',
+        content: data.message || null,
         videoUrl: data.videoUrl
       };
       setMessages(prev => [...prev, botReply]);
@@ -418,6 +420,7 @@ const ChatbotUI: React.FC = () => {
                     <div className="text-sm text-gray-600">
                       <FaFileUpload className="inline mr-2" />
                       {(msg.content as File)?.name || "File"}
+                      {isBotTyping && <p className="mt-1 text-indigo-500">Processing your file...</p>}
                     </div>
                   )}
                 </div>
@@ -425,6 +428,7 @@ const ChatbotUI: React.FC = () => {
               {msg.type === "video" && msg.videoUrl && (
                 <video controls className="mt-2 rounded-lg" style={{ maxWidth: '100%' }}>
                   <source src={`http://localhost:5000${msg.videoUrl}`} type="video/mp4" />
+                  {msg.message && <p className="mt-1">{msg.message}</p>}
                   Your browser does not support the video tag.
                 </video>
               )}

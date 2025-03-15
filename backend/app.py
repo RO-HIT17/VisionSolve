@@ -4,6 +4,7 @@ import os
 import uuid
 from latex_generator import generate_latex_from_image
 #from main1 import convert_to_latex
+from lat import extract_latex_from_image
 
 app = Flask(__name__)
 CORS(app)  
@@ -59,15 +60,19 @@ def handle_handwritten_upload():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
+    #latex_equation = generate_latex_from_image(file_path)
+    
     # Save handwritten file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(HANDWRITTEN_FOLDER, filename)
     file.save(file_path)
-    
+    extract_latex_from_image(file_path)
+    print("Latex:",extract_latex_from_image(file_path))
     # Process handwritten file (mock implementation)
     response = {
         'videoUrl': '/static/video.mp4',
-        'message': f'Processed handwritten question: {filename}'
+        'message': f'Processed handwritten question: {filename}',
+        'latexEquation': extract_latex_from_image(file_path)
     }
     return jsonify(response)
 
