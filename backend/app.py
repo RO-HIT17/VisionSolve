@@ -22,9 +22,15 @@ os.makedirs(HANDWRITTEN_FOLDER, exist_ok=True)
 def handle_question():
     data = request.json
     user_input = data.get('message', '')
+    vidpath=generate_educational_video(user_input)
+    video_url = vidpath.replace('\\', '/')
+    video_filename = os.path.basename(video_url)
+    new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
+    shutil.move(vidpath, new_video_path)
+    video_url = f'/static/{video_filename}'
     
     response = {
-        'videoUrl': f'/static/video.mp4',
+        'videoUrl': video_url,
         'message': f'Processed your question: {user_input}'
     }
     return jsonify(response)
