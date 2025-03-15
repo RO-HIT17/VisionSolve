@@ -47,25 +47,41 @@ const ChatbotUI: React.FC = () => {
     { id: '3', title: 'Geometry Question', date: '2025-03-10' },
   ]);
 
+  
   const handleSendMessage = async () => {
-    if (inputText.trim()) {
-      const newMessage: Message = { sender: 'user', type: 'text', content: inputText.trim() };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInputText('');
-      setIsBotTyping(true);
+    if (!inputText.trim()) return;
+
+    const newMessage: Message = { sender: 'user', type: 'text', content: inputText.trim() };
+    setMessages(prev => [...prev, newMessage]);
+    setInputText('');
+    setIsBotTyping(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: inputText.trim() })
+      });
+
+      const data = await response.json();
       
-      setTimeout(async () => {
-        const mockVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
-        const botReply: Message = { 
-          sender: 'bot', 
-          type: 'video', 
-          content: null, 
-          videoUrl: mockVideoUrl 
-        };
-        setMessages((prevMessages) => [...prevMessages, botReply]);
-        setIsBotTyping(false);
-      }, 1500);
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: data.videoUrl
+      };
+      setMessages(prev => [...prev, botReply]);
+    } catch (error) {
+      console.error('Error:', error);
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'text',
+        content: 'Sorry, there was an error processing your request.'
+      };
+      setMessages(prev => [...prev, botReply]);
     }
+    setIsBotTyping(false);
   };
 
   const createImagePreview = (file: File): Promise<string> => {
@@ -80,31 +96,48 @@ const ChatbotUI: React.FC = () => {
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const isImage = file.type.startsWith('image/');
-      let imageUrl = isImage ? await createImagePreview(file) : undefined;
+    if (!file) return;
 
-      const newMessage: Message = {
-        sender: 'user',
-        type: 'file',
-        content: file,
-        imageUrl: imageUrl
+    const isImage = file.type.startsWith('image/');
+    const imageUrl = isImage ? URL.createObjectURL(file) : undefined;
+
+    const newMessage: Message = {
+      sender: 'user',
+      type: 'file',
+      content: file,
+      imageUrl
+    };
+    setMessages(prev => [...prev, newMessage]);
+
+    setIsBotTyping(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'video',
+        content: null,
+        videoUrl: data.videoUrl
       };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-      setIsBotTyping(true);
-      setTimeout(async () => {
-        const mockVideoUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
-        const botReply: Message = { 
-          sender: 'bot', 
-          type: 'video', 
-          content: null, 
-          videoUrl: mockVideoUrl 
-        };
-        setMessages((prevMessages) => [...prevMessages, botReply]);
-        setIsBotTyping(false);
-      }, 3000);
+      setMessages(prev => [...prev, botReply]);
+    } catch (error) {
+      console.error('Error:', error);
+      const botReply: Message = {
+        sender: 'bot',
+        type: 'text',
+        content: 'Sorry, there was an error processing your file.'
+      };
+      setMessages(prev => [...prev, botReply]);
     }
+    setIsBotTyping(false);
   };
 
   const handleFileUpload = async () => {
@@ -212,8 +245,8 @@ const ChatbotUI: React.FC = () => {
 
     <div className="flex-1 flex flex-col">
       <div className="flex-1 p-4 sm:p-6 md:p-8 flex flex-col items-center">
-        <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-2xl w-full flex flex-col">
-          <div className="bg-indigo-500 text-white py-4 px-6 flex items-center justify-between">
+        <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-4xl w-full flex flex-col">
+          <div className="bg-indigo-600 text-white py-4 px-6 flex items-center justify-between">
             <div className="flex items-center">
               <FaRobot className="text-xl mr-3" />
               <h2 className="text-lg font-semibold">Chat Session</h2>
@@ -221,26 +254,18 @@ const ChatbotUI: React.FC = () => {
             <span className="text-sm opacity-75">Online</span>
           </div>
 
-          <div className="p-4 h-[500px] overflow-y-auto flex flex-col space-y-3 scroll-smooth" id="chat-messages">
+          <div className="p-4 h-[500px] overflow-y-auto flex flex-col space-y-3">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} items-start`}>
             {msg.sender === "bot" && <FaRobot className="text-xl text-indigo-500 mr-3 mt-1" />}
-            <div
-              className={`rounded-xl p-3 w-fit max-w-[80%] ${
-                msg.sender === "user"
-                  ? "bg-blue-200 text-blue-800 rounded-br-none"
-                  : "bg-gray-100 text-gray-800 rounded-bl-none"
-              }`}
-            >
+            <div className={`rounded-xl p-3 w-fit max-w-[80%] ${
+              msg.sender === "user" ? "bg-blue-200 text-blue-800 rounded-br-none" : "bg-gray-100 text-gray-800 rounded-bl-none"
+            }`}>
               {msg.type === "text" && <p className="text-sm break-words">{msg.content}</p>}
               {msg.type === "file" && (
                 <div>
                   {msg.imageUrl ? (
-                    <img 
-                      src={msg.imageUrl} 
-                      alt="Uploaded content" 
-                      className="max-w-xs h-auto rounded-lg"
-                    />
+                    <img src={msg.imageUrl} alt="Uploaded content" className="max-w-xs h-auto rounded-lg" />
                   ) : (
                     <div className="text-sm text-gray-600">
                       <FaFileUpload className="inline mr-2" />
@@ -250,12 +275,8 @@ const ChatbotUI: React.FC = () => {
                 </div>
               )}
               {msg.type === "video" && msg.videoUrl && (
-                <video 
-                  controls 
-                  className="mt-2 rounded-lg"
-                  style={{ maxWidth: '100%' }}
-                >
-                  <source src={msg.videoUrl} type="video/mp4" />
+                <video controls className="mt-2 rounded-lg" style={{ maxWidth: '100%' }}>
+                  <source src={`http://localhost:5000${msg.videoUrl}`} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               )}
@@ -274,35 +295,36 @@ const ChatbotUI: React.FC = () => {
         <div ref={chatBottomRef} />
       </div>
 
-          <div className="bg-gray-50 py-3 px-4 border-t border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  className="w-full rounded-full py-2.5 pl-4 pr-12 border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                  placeholder="Type your math problem or question..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
-                >
-                  <FaPaperPlane className="text-lg" />
-                </button>
-              </div>
-              <div>
-                <label htmlFor="file-upload" className="cursor-pointer text-gray-600 hover:text-indigo-500 transition-colors duration-200">
-                  <FaFileUpload className="text-xl" />
-                </label>
-                <input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept="image/*, application/pdf" />
-              </div>
-            </div>
+      <div className="bg-gray-50 py-3 px-4 border-t border-gray-200">
+        <div className="flex items-center space-x-3">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              className="w-full rounded-full py-2.5 pl-4 pr-12 border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+              placeholder="Type your math problem or question..."
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+            />
+            <button
+              onClick={handleSendMessage}
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-2"
+            >
+              <FaPaperPlane className="text-lg" />
+            </button>
+          </div>
+          <div>
+            <label htmlFor="file-upload" className="cursor-pointer text-gray-600 hover:text-indigo-500">
+              <FaFileUpload className="text-xl" />
+            </label>
+            <input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} />
           </div>
         </div>
       </div>
-      <p className="mt-6 text-sm text-gray-500  text-center">
+
+        </div>
+      </div>
+      <p className="mt-6 text-sm text-gray-500  text-center mb-4">
         Powered by <span className="font-semibold text-indigo-600">Code Crusaders</span>
       </p>
     </div>
