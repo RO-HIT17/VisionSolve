@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react';
-
+import '../globals.css'
 import { FaPaperPlane, FaFileUpload, FaRobot, FaUser, FaSpinner, FaPlayCircle } from 'react-icons/fa';
 
 interface Message {
