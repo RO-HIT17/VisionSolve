@@ -5,10 +5,12 @@ import uuid
 from latex_generator import generate_latex_from_image
 #from main1 import convert_to_latex
 from lat import extract_latex_from_image
-
+from test_generate_video import generate_educational_video
+import shutil
 app = Flask(__name__)
 CORS(app)  
 
+STATIC_VIDEOS_FOLDER = 'static/' 
 UPLOAD_FOLDER = 'snap'
 STATIC_FOLDER = 'static'
 HANDWRITTEN_FOLDER = 'handwritten'
@@ -41,11 +43,30 @@ def handle_upload():
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
+    
     latex_equation = generate_latex_from_image(file_path)
-    print("Latex:",latex_equation)
+    vidpath=generate_educational_video(latex_equation)
+    #vidpath="videos\8375c77d.mp4"
+    #print("Video path:",vidpath)
+    ##print("Latex:",latex_equation)
+    video_url = vidpath.replace('\\', '/')
+    #video_url = f'/{video_url}'
+    #print("Video path:",video_url)
+    
+    video_filename = os.path.basename(video_url)  # Extract just the filename
+    new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
+
+    # Move file to static/videos/
+    shutil.move(vidpath, new_video_path)  # This physically moves the file
+
+    # ✅ Return URL that can be accessed from frontend
+    video_url = f'/static/{video_filename}'
+    
     # Process file (mock implementation)
     response = {
-        'videoUrl': '/static/video.mp4',
+        #backend\static\video.mp4
+        #backend\videos\8375c77d.mp4
+        'videoUrl': video_url,
         'message': f'Processed your file: {filename}',
         'latexEquation': latex_equation
     }
@@ -62,15 +83,29 @@ def handle_handwritten_upload():
     
     #latex_equation = generate_latex_from_image(file_path)
     
+    
     # Save handwritten file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(HANDWRITTEN_FOLDER, filename)
     file.save(file_path)
-    extract_latex_from_image(file_path)
-    print("Latex:",extract_latex_from_image(file_path))
+    
+    latex=extract_latex_from_image(file_path)
+    #print("Latex:",extract_latex_from_image(latex))
+    vidpath=generate_educational_video(latex)
+    video_url = vidpath.replace('\\', '/')
+    video_filename = os.path.basename(video_url)  # Extract just the filename
+    new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
+
+    # Move file to static/videos/
+    shutil.move(vidpath, new_video_path)  # This physically moves the file
+
+    # ✅ Return URL that can be accessed from frontend
+    video_url = f'/static/{video_filename}'
+    
+    
     # Process handwritten file (mock implementation)
     response = {
-        'videoUrl': '/static/video.mp4',
+        'videoUrl': video_url,
         'message': f'Processed handwritten question: {filename}',
         'latexEquation': extract_latex_from_image(file_path)
     }
@@ -81,4 +116,4 @@ def static_files(filename):
     return send_from_directory(STATIC_FOLDER, filename)
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True,use_reloader=False)

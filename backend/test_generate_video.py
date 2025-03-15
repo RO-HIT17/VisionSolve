@@ -5,7 +5,7 @@ import re
 import subprocess
 import glob
 from pathlib import Path
-from gemini_code_generator import generate_and_validate
+from manim_code_generated import generate_and_validate
 
 def generate_educational_video(prompt):
     
