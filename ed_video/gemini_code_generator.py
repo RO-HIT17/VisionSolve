@@ -83,10 +83,12 @@ def generate_code(prompt):
     2. Be complete and ready to run (import all necessary libraries)
     3. Strictly Structure content hierarchically: 
         At most top of video : title
-        next to title: explanations ( generated below the title from top to bottom.)
+        if the title is generated at centre..then move it to top
+        next to title: explanations ( generated below the title line by line with proper spacing from top to bottom.)
+        clear the title if needed (recommended to prevent overlapping)
         clear the title if you feel like screen gonna get filled 
         elements should not go out of video frame and 1 unit margin from all sides
-        NO OVERLAPPING ANYWHERE !
+        explation should be genrated below title with proper spacing between them and dont go out of frame
     Clear the screen when you gonna use graphs and make sure entire graph is inside the frame and the graph animations dont overlap with existing elements
     4. Create a scene class named RequestGeneration that inherits from Scene
     5. Use MathTex/Tex for all text to ensure proper chemical and mathematical notation
@@ -141,6 +143,10 @@ def validate_code(code, language):
     - Ensure proper escaping of special characters in LaTeX
     - Replace any Unicode math symbols with proper LaTeX commands
     - Fix empty LaTeX expressions by adding a placeholder like "\\;"
+
+    7.Look out for Value Errors
+
+    8. If you feel like there overlapping add clear screens and also make sure title and explanation dont overlap nor explation is too bottom
 
     - IMPORTANT: Never use font_size parameter with the next_to() method - it's not a valid parameter. Instead, set font_size when creating Text or MathTex objects.
 
