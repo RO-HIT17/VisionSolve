@@ -8,7 +8,7 @@ from pathlib import Path
 from gemini_code_generator import generate_and_validate
 
 def generate_educational_video(prompt):
-    """Generate an educational video based on the prompt."""
+    
     print(f"Generating Manim code for: {prompt}")
     
     
