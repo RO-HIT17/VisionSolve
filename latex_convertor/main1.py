@@ -15,7 +15,8 @@ if os.path.exists(src_model_path):
     shutil.copy(src_model_path, dst_model_path)
     print(f"Model weights copied to: {dst_model_path}")
 else:
-    print("Source model weights file not found!")
+    pass
+    #print("Source model weights file not found!")
 
 # Load image
 image_path = r"C:\\Rohit\\Projects\\Itrix 25\\math-to-latex\\test_images\\2.png"

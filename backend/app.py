@@ -2,9 +2,11 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import uuid
+from latex_generator import generate_latex_from_image
+#from main1 import convert_to_latex
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for development
+CORS(app)  
 
 UPLOAD_FOLDER = 'snap'
 STATIC_FOLDER = 'static'
@@ -38,11 +40,13 @@ def handle_upload():
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
-    
+    latex_equation = generate_latex_from_image(file_path)
+    print("Latex:",latex_equation)
     # Process file (mock implementation)
     response = {
         'videoUrl': '/static/video.mp4',
-        'message': f'Processed your file: {filename}'
+        'message': f'Processed your file: {filename}',
+        'latexEquation': latex_equation
     }
     return jsonify(response)
 
