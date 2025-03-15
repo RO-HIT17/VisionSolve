@@ -4,7 +4,7 @@ import os
 import uuid
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for development
+CORS(app)
 
 UPLOAD_FOLDER = 'snap'
 STATIC_FOLDER = 'static'
@@ -18,7 +18,6 @@ def handle_question():
     data = request.json
     user_input = data.get('message', '')
     
-    # Process the question (mock implementation)
     response = {
         'videoUrl': f'/static/video.mp4',
         'message': f'Processed your question: {user_input}'
@@ -34,12 +33,10 @@ def handle_upload():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    # Save uploaded file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
     
-    # Process file (mock implementation)
     response = {
         'videoUrl': '/static/video.mp4',
         'message': f'Processed your file: {filename}'
@@ -55,12 +52,10 @@ def handle_handwritten_upload():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    # Save handwritten file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(HANDWRITTEN_FOLDER, filename)
     file.save(file_path)
     
-    # Process handwritten file (mock implementation)
     response = {
         'videoUrl': '/static/video.mp4',
         'message': f'Processed handwritten question: {filename}'
