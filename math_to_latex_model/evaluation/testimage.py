@@ -9,40 +9,25 @@ import yaml
 import torch
 
 def predict_single_image(image_path, model, tokenizer, args):
-    """
-    Predict LaTeX for a single image using the trained pix2tex model.
     
-    Args:
-        image_path (str): Path to the image file.
-        model (Model): Loaded pix2tex model.
-        tokenizer: Tokenizer used by pix2tex.
-        args: Configuration arguments (device, etc.).
-    
-    Returns:
-        str: Predicted LaTeX string.
-    """
     device = args.device
     model.eval()
     
-    # Load and preprocess image
     image = Image.open(image_path).convert('RGB')
     transform = get_transform(args)
-    image_tensor = transform(image).unsqueeze(0).to(device)  # Add batch dimension
+    image_tensor = transform(image).unsqueeze(0).to(device)  
 
-    # Generate LaTeX tokens
+    
     with torch.no_grad():
         output_tokens = model.generate(image_tensor, temperature=args.get('temperature', .2))
     
-    # Convert tokens to string
-    latex_code = token2str(output_tokens, tokenizer)[0]  # Get string from batch
+    latex_code = token2str(output_tokens, tokenizer)[0]  
 
-    # Post-process
     latex_code = post_process(latex_code)
 
     return latex_code
 
 if __name__ == '__main__':
-    # Your existing argument parsing and model loading code...
     parser = argparse.ArgumentParser(description='Test model')
     parser.add_argument('--config', default=None, help='path to yaml config file', type=str)
     parser.add_argument('-c', '--checkpoint', default=None, type=str, help='path to model checkpoint')
@@ -53,7 +38,6 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--temperature', type=float, default=.333, help='sampling temperature')
 
     parsed_args = parser.parse_args()
-    # ---- Existing model & args loading ----
     if parsed_args.config is None:
         with in_model_path():
             parsed_args.config = os.path.realpath('config.yaml')
@@ -67,16 +51,13 @@ if __name__ == '__main__':
     seed_everything(args.seed if 'seed' in args else 42)
     model = get_model(args).to(args.device)
 
-    # Load weights
     if parsed_args.checkpoint is None:
         with in_model_path():
             parsed_args.checkpoint = os.path.realpath('mixed_e01_step16298.pth')
     model.load_state_dict(torch.load(parsed_args.checkpoint, map_location=args.device))
 
-    # Load tokenizer
     tokenizer = Im2LatexDataset().tokenizer
 
-    # ---- SINGLE IMAGE PREDICTION ----
     if parsed_args.image is not None:
         latex_result = predict_single_image(parsed_args.image, model, tokenizer, args)
         print(f"Predicted LaTeX:\n{latex_result}")

@@ -2,11 +2,12 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import uuid
-from latex_generator import generate_latex_from_image
-#from main1 import convert_to_latex
-from lat import extract_latex_from_image
-from test_generate_video import generate_educational_video
 import shutil
+
+from latex_generator import genrate_latex_from_image
+from latex_generater import generate_latex_from_image
+from test_generate_video import generate_educational_video
+
 app = Flask(__name__)
 CORS(app)  
 
@@ -14,6 +15,7 @@ STATIC_VIDEOS_FOLDER = 'static/'
 UPLOAD_FOLDER = 'snap'
 STATIC_FOLDER = 'static'
 HANDWRITTEN_FOLDER = 'handwritten'
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
 os.makedirs(HANDWRITTEN_FOLDER, exist_ok=True)
@@ -22,8 +24,10 @@ os.makedirs(HANDWRITTEN_FOLDER, exist_ok=True)
 def handle_question():
     data = request.json
     user_input = data.get('message', '')
+    
     vidpath=generate_educational_video(user_input)
     video_url = vidpath.replace('\\', '/')
+    
     video_filename = os.path.basename(video_url)
     new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
     shutil.move(vidpath, new_video_path)
@@ -48,28 +52,18 @@ def handle_upload():
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
     
-    latex_equation = generate_latex_from_image(file_path)
+    latex_equation = genrate_latex_from_image(file_path)
     vidpath=generate_educational_video(latex_equation)
-    #vidpath="videos\8375c77d.mp4"
-    #print("Video path:",vidpath)
-    ##print("Latex:",latex_equation)
     video_url = vidpath.replace('\\', '/')
-    #video_url = f'/{video_url}'
-    #print("Video path:",video_url)
     
-    video_filename = os.path.basename(video_url)  # Extract just the filename
+    video_filename = os.path.basename(video_url)  
     new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
 
-    # Move file to static/videos/
-    shutil.move(vidpath, new_video_path)  # This physically moves the file
+    shutil.move(vidpath, new_video_path)  
 
-    # ✅ Return URL that can be accessed from frontend
     video_url = f'/static/{video_filename}'
     
-    # Process file (mock implementation)
     response = {
-        #backend\static\video.mp4
-        #backend\videos\8375c77d.mp4
         'videoUrl': video_url,
         'message': f'Processed your file: {filename}',
         'latexEquation': latex_equation
@@ -85,33 +79,24 @@ def handle_handwritten_upload():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    #latex_equation = generate_latex_from_image(file_path)
-    
-    
-    # Save handwritten file
     filename = f"{uuid.uuid4()}_{file.filename}"
     file_path = os.path.join(HANDWRITTEN_FOLDER, filename)
     file.save(file_path)
     
-    latex=extract_latex_from_image(file_path)
-    #print("Latex:",extract_latex_from_image(latex))
+    latex=generate_latex_from_image(file_path)
     vidpath=generate_educational_video(latex)
     video_url = vidpath.replace('\\', '/')
-    video_filename = os.path.basename(video_url)  # Extract just the filename
+    video_filename = os.path.basename(video_url)  
     new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
 
-    # Move file to static/videos/
-    shutil.move(vidpath, new_video_path)  # This physically moves the file
+    shutil.move(vidpath, new_video_path)  
 
-    # ✅ Return URL that can be accessed from frontend
     video_url = f'/static/{video_filename}'
     
-    
-    # Process handwritten file (mock implementation)
     response = {
         'videoUrl': video_url,
         'message': f'Processed handwritten question: {filename}',
-        'latexEquation': extract_latex_from_image(file_path)
+        'latexEquation': latex
     }
     return jsonify(response)
 
