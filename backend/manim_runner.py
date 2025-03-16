@@ -48,11 +48,11 @@ class ManimRunner:
         
         try:
             cmd = [
-                sys.executable, "-m", "manim",
+                sys.executable, "-m", "manim", 
                 script_path, scene_class,
-                "-o", file_id,
-                "--media_dir", self.output_dir,
-                "-q", "m"
+                "-o", file_id, 
+                "--media_dir", self.output_dir,  
+                "-q", "m" 
             ]
             
             print(f"Executing: {' '.join(cmd)}")
@@ -61,7 +61,7 @@ class ManimRunner:
                 cmd, 
                 capture_output=True, 
                 text=True, 
-                cwd=os.path.dirname(script_path)
+                cwd=os.path.dirname(script_path)  
             )
             
             if result.returncode != 0:
