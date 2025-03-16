@@ -1,8 +1,3 @@
-'''
-Python 3.6 
-Pytorch >= 0.4
-Written by Hongyu Wang and Wenliang Liu in Beihang university
-'''
 from tkinter import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from PIL import Image,ImageTk
