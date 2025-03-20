@@ -234,7 +234,7 @@ const ChatbotUI: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:5000/api/upload', {
+      const response = await fetch('http://localhost:5000/api/upload/pdf', {
         method: 'POST',
         body: formData
       });
@@ -295,7 +295,7 @@ const ChatbotUI: React.FC = () => {
       const botReply: Message = {
         sender: 'bot',
         type: 'text',
-        content: 'Sorry, there was an error processing your handwritten question.'
+        content: 'Sorry, there was an error processing your question.'
       };
       setMessages(prev => [...prev, botReply]);
     }
