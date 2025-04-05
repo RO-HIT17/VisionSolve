@@ -22,7 +22,8 @@ UPLOAD_FOLDER = 'snap'
 PDF_UPLOAD_FOLDER = 'pdfs'
 STATIC_FOLDER = 'static'
 HANDWRITTEN_FOLDER = 'handwritten'
-
+VIDEOS_FOLDER = os.path.join(os.getcwd(), 'videos')
+os.makedirs(VIDEOS_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
 os.makedirs(HANDWRITTEN_FOLDER, exist_ok=True)
@@ -187,6 +188,10 @@ def handle_handwritten_upload():
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory(STATIC_FOLDER, filename)
+
+@app.route('/videos/<filename>')
+def serve_video(filename):
+    return send_from_directory(VIDEOS_FOLDER, filename)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True,use_reloader=False)

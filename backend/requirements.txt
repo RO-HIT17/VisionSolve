@@ -1,0 +1,13 @@
+fitz==0.0.1.dev2
+Flask==3.1.0
+Flask_Cors==5.0.0
+gTTS==2.5.4
+Pillow==11.1.0
+pix2tex==0.1.4
+python-dotenv==1.1.0
+python_docx==1.1.2
+python_pptx==1.0.2
+pyttsx3==2.98
+google.generativeai==0.1.0
+requests==2.31.0
+gunicorn

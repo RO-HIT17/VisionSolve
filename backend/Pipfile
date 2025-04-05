@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fitz = "==0.0.1.dev2"
+flask = "==3.1.0"
+flask-cors = "==5.0.0"
+gtts = "==2.5.4"
+pillow = "==11.1.0"
+pix2tex = "==0.1.4"
+protobuf = "==6.30.2"
+python-dotenv = "==1.1.0"
+python-docx = "==1.1.2"
+python-pptx = "==1.0.2"
+pyttsx3 = "==2.98"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
