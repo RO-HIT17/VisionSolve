@@ -4,10 +4,10 @@ import os
 import uuid
 import shutil
 import subprocess
-
+from threading import Thread
 from docx import Document
 from pptx import Presentation
-
+import time
 from latex_generator import genrate_latex_from_image
 from latex_generater import generate_latex_from_image
 from test_generate_video import generate_educational_video
@@ -56,22 +56,37 @@ def get_latest_text_file(directory):
         print("Error finding latest file:", e)
         return None
     
+def generate_video_task(user_input, video_filename):
+    try:
+        print(f"Thread: Generating video for {user_input}")
+        vidpath = generate_educational_video(user_input)
+        video_url = vidpath.replace('\\', '/')
+        
+        # Move the generated video
+        new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
+        shutil.move(vidpath, new_video_path)
+        print(f"Video moved to: {new_video_path}")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
 @app.route('/api/ask', methods=['POST'])
 def handle_question():
     data = request.json
     user_input = data.get('message', '')
-    
-    vidpath=generate_educational_video(user_input)
-    video_url = vidpath.replace('\\', '/')
-    
-    video_filename = os.path.basename(video_url)
-    new_video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
-    shutil.move(vidpath, new_video_path)
-    video_url = f'/static/{video_filename}'
-    
+
+    # Create a unique filename
+    timestamp = int(time.time())
+    video_filename = f"video_{timestamp}.mp4"
+    video_path = os.path.join(STATIC_VIDEOS_FOLDER, video_filename)
+
+    # Start video generation in background thread
+    thread = Thread(target=generate_video_task, args=(user_input, video_filename))
+    thread.start()
+
+    # Return early response
     response = {
-        'videoUrl': video_url,
-        'message': f'Processed your question: {user_input}'
+        'videoUrl': f'/static/{video_filename}',  # Will be available once generation finishes
+        'message': f'Processing your question: {user_input}. Video will be ready shortly.'
     }
     return jsonify(response)
 
