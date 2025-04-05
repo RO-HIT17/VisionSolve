@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --timeout 600
+    startCommand: gunicorn app:app -t 1800 --keep-alive 1800
     envVars:
       - key: GEMINI_API_KEY
         sync: false
