@@ -1,5 +1,5 @@
 import google.generativeai as genai
-from PIL import Imagev
+from PIL import Image
 import os
 from dotenv import load_dotenv
 load_dotenv()
