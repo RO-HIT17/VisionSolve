@@ -2,15 +2,9 @@ services:
   - type: web
     name: flask-video-gen-app
     runtime: python
-    region: oregon  # or use frankfurt if you're in Europe
-    plan: free  # or use starter/pro for more power
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app --timeout 600
     envVars:
       - key: GEMINI_API_KEY
-        sync: false  # assumes it's added manually from the Render dashboard
-    autoDeploy: true
-    branch: main  # change if you're using a different branch
-    buildFilter:
-      paths:
-        - backend/**  # assuming your app is inside `backend/`
+        sync: false
