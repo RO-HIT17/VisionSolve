@@ -224,7 +224,7 @@ const ChatbotUI: React.FC = () => {
       sender: 'user',
       type: 'file',
       content: file,
-      message: null,
+      message: "",
       imageUrl
     };
     setMessages(prev => [...prev, newMessage]);
@@ -411,7 +411,7 @@ const ChatbotUI: React.FC = () => {
             <div className={`rounded-xl p-3 w-fit max-w-[80%] ${
               msg.sender === "user" ? "bg-blue-200 text-blue-800 rounded-br-none" : "bg-gray-100 text-gray-800 rounded-bl-none"
             }`}>
-              {msg.type === "text" && <p className="text-sm break-words">{msg.content}</p>}
+              {msg.type === "text" && typeof msg.content === "string" && <p className="text-sm break-words">{msg.content}</p>}
               {msg.type === "file" && (
                 <div>
                   {msg.imageUrl ? (
