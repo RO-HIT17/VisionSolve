@@ -176,7 +176,7 @@ const ChatbotUI: React.FC = () => {
     setIsBotTyping(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/ask', {
+      const response = await fetch('https://visionsolve.onrender.com/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputText.trim() })
@@ -234,7 +234,7 @@ const ChatbotUI: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:5000/api/upload/pdf', {
+      const response = await fetch('https://visionsolve.onrender.com/api/upload/pdf', {
         method: 'POST',
         body: formData
       });
@@ -276,7 +276,7 @@ const ChatbotUI: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
   
-      const response = await fetch('http://localhost:5000/api/upload/handwritten', {
+      const response = await fetch('https://visionsolve.onrender.com/api/upload/handwritten', {
         method: 'POST',
         body: formData
       });
@@ -427,7 +427,7 @@ const ChatbotUI: React.FC = () => {
               )}
               {msg.type === "video" && msg.videoUrl && (
                 <video controls className="mt-2 rounded-lg" style={{ maxWidth: '100%' }}>
-                  <source src={`http://localhost:5000${msg.videoUrl}`} type="video/mp4" />
+                  <source src={`https://visionsolve.onrender.com${msg.videoUrl}`} type="video/mp4" />
                   {msg.message && <p className="mt-1">{msg.message}</p>}
                   Your browser does not support the video tag.
                 </video>
