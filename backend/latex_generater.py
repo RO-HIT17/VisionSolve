@@ -2,6 +2,7 @@ import google.generativeai as genai
 from PIL import Imagev
 import os
 from dotenv import load_dotenv
+load_dotenv()
 genai.configure(api_key=os.getenv("GENAI_API_KEY"))
 
 def generate_latex_from_image(image_path, api_key=None):
