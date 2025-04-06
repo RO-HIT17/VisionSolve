@@ -1,0 +1,56 @@
+Problem is not with Azure Deployment - cnfrmed
+
+Complexites:
+4 min Timout
+Error in Video Genration
+Docker Image too large - 27GB
+Pycario dependies are installing in the container in render - worked in Azure
+Docker Build Takes 15-20mns
+Generated Video came out to be less than 20sec - Problem with code
+Flask PORT and Process issues - fixed
+Videos arent stored
+
+Step 1 - 
+Setup Github Repo
+Make it work Locally
+Run it with the help of Docker
+Make sure it runs perfectly with Docker in local
+
+Modify App.py slightly
+Setup PORT and GEMINI in Azure
+
+
+
+Action Plan 
+Redo from start
+Use updated Video generation code 
+Fix this in backend
+Make the backend complete production ready
+
+Done Start
+
+
+Found New Bug -> 
+
+
+OLD CODE STILL GENERATES DECENT VIDEO BUT IN DOCKER SOMETHING HAPPENS AND THE VIDEO IS TRIMMED
+
+If only python code works test it by only creating a container for it
+
+
+Azure Port number changes - temporarily hardcoding in env variables
+
+2 Main Bugs:
+Azure PORT Shouldnt be hardcoded
+If hardcoded it works only once
+Then the 6 sec video is due to the previous and temp/ cached files
+
+Docker Video - Fixable
+4min Timeout
+Azure PORT Error - Random
+Frontend Change
+Frontend + New Video Generation  + Docker Integration
+
+ok idea to overcome 4min timeout 
+return a fake 200 Response
+then render video once its done
