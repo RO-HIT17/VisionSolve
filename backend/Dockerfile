@@ -1,10 +1,8 @@
-# Use a larger image with GTK and cairo pre-installed
 FROM python:3.10-bullseye
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system-level dependencies needed by manim
 RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libpango1.0-dev \
