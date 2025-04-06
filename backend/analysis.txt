@@ -45,6 +45,8 @@ Azure PORT Shouldnt be hardcoded
 If hardcoded it works only once
 Then the 6 sec video is due to the previous and temp/ cached files
 
+Docker Crashing
+
 Docker Video - Fixable
 4min Timeout
 Azure PORT Error - Random
