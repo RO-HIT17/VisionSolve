@@ -61,7 +61,7 @@ def handle_question():
     data = request.json
     user_input = data.get('message', '')
     
-    vidpath=generate_educational_video(user_input)
+    vidpath=generate_educational_video(user_input,'y',)
     video_url = vidpath.replace('\\', '/')
     
     video_filename = os.path.basename(video_url)
